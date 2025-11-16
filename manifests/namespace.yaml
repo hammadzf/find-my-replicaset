@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: rsfinder-controller-manager
+    app.kubernetes.io/name: rs-finder
+  name: rsfinder-system
