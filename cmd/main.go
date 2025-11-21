@@ -6,6 +6,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 
 	"github.com/hammadzf/find-my-replicaset/internal/controller"
+	"github.com/hammadzf/find-my-replicaset/internal/webhook"
+
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -35,6 +37,16 @@ func main() {
 
 	if err != nil {
 		entryLog.Error(err, "unable to create the controller")
+		os.Exit(1)
+	}
+
+	// add webhooks to the manager
+	if err = ctrl.NewWebhookManagedBy(mgr).
+		For(&appsv1.Deployment{}).
+		WithDefaulter(&webhook.DepLabeler{}).
+		WithValidator(&webhook.DepValidator{}).
+		Complete(); err != nil {
+		entryLog.Error(err, "unable to create webhook")
 		os.Exit(1)
 	}
 
